@@ -208,10 +208,10 @@ async function getVcsForPatient(patientId, details: CredentialGenerationDetals =
     encryptVc: false
 }) {
     const state = patientToSiopResponse[patientId];
-    if (!state || siopCache[state].responseDeferred.pending){ 
+    if (!state || siopCache[state].responseDeferred.pending){
         throw new OperationOutcomeError("no-did-bound", `No SIOP request has been completed for patient ${patientId}`)
     }
-    
+
     const siopResponse = await siopCache[state].siopStateAfterResponse;
     const id_token = siopResponse.idTokenRaw;
     const withResponse = await issuerReducer(issuerState, await parseSiopResponse(id_token, issuerState));
@@ -307,7 +307,7 @@ app.get('/api/fhir/DiagnosticReport', async (req, res, err) => {
             }
         }]
     })
-    
+
     } catch (e) {
         err(e);
     }
@@ -366,7 +366,7 @@ app.post('/api/fhir/Patient/:patientID/[\$]HealthWallet.issueVc', async (req, re
     const requestBody = (req.body || {})
 
     if (typeof req.body !== "object"){
-        throw "No request body found"
+        throw new Error("No request body found")
     }
 
     const requestedCredentialType: string[] = (requestBody.parameter || [])
@@ -374,7 +374,7 @@ app.post('/api/fhir/Patient/:patientID/[\$]HealthWallet.issueVc', async (req, re
         .map(p => p.valueUri);
 
     if (!requestedCredentialType.length){
-        throw "No credentialType found in the Parameters"
+        throw new Error("No credentialType found in the Parameters")
     }
 
     const requestedPresentationContext = (requestBody.parameter || [])
@@ -382,9 +382,9 @@ app.post('/api/fhir/Patient/:patientID/[\$]HealthWallet.issueVc', async (req, re
         .map(p => p.valueUri)[0]
 
     if (!requestedPresentationContext){
-        throw "No presentationContext found in the Parameters"
+        throw new Error("No presentationContext found in the Parameters")
     }
- 
+
     const requestedCredentialIdentityClaims = (requestBody.parameter || [])
         .filter(p => p.name === 'includeIdentityClaim')
         .map(p => p.valueString)
@@ -394,7 +394,7 @@ app.post('/api/fhir/Patient/:patientID/[\$]HealthWallet.issueVc', async (req, re
         .map(p => p.valueString)
 
     if (requestedEncryptionKeyId.length > 0 && requestedEncryptionKeyId[0][0] !== "#") {
-        throw "Requested encryption key ID must start with '#', e.g., '#encryption-key-1'.";
+        throw new Error("Requested encryption key ID must start with '#', e.g., '#encryption-key-1'.");
     }
 
     const encryptVc =  requestedEncryptionKeyId.length === 1;
@@ -410,7 +410,7 @@ app.post('/api/fhir/Patient/:patientID/[\$]HealthWallet.issueVc', async (req, re
         });
 
         if (!newVcs.length) {
-            throw "No VC Available matching requested claims, or VC generation failed";
+            throw new Error("No VC Available matching requested claims, or VC generation failed");
         }
         vcs = [...vcs, ...newVcs]
     }
@@ -422,9 +422,9 @@ app.post('/api/fhir/Patient/:patientID/[\$]HealthWallet.issueVc', async (req, re
             'valueAttachment': {
                 "data": base64.encode(vc)
             }
-        })) 
+        }))
     });
-        
+
     } catch (e) {
         err(e);
     }
@@ -509,8 +509,10 @@ const siopBegin = async (req, res, err?) => {
         responsePollingUrl: `/siop/${id}/response`,
         ...siopCache[id]
     });
-    } catch (e){ 
-        err && err(e);
+    } catch (e){
+        if (err && typeof err === 'function') {
+            err(e);
+        }
     }
 };
 app.post('/api/siop/begin', siopBegin);
@@ -522,8 +524,8 @@ app.get('/api/siop/:id/response', async (req, res, err) => {
         state: req.params.id,
         id_token: r.idTokenRaw
     });
-        
-    } catch(e) {
+
+    } catch (e) {
         err(e);
     }
 });
@@ -548,7 +550,7 @@ app.post('/api/siop', async (req, res, err) => {
         idTokenPayload: null
     });
     res.send('Received SIOP Response');
-    } catch(e) {
+    } catch (e) {
         err(e);
     }
 });
@@ -565,8 +567,8 @@ app.get('/api/did/:did', async (req, res, err) => {
 
 app.post('/api/lab/vcs/:did', async (req, res, err) => {
     try {
-    
-        
+
+
     const did = decodeURIComponent(req.params.did);
     const vcs = req.body.vcs;
     const entry = {
@@ -575,7 +577,7 @@ app.post('/api/lab/vcs/:did', async (req, res, err) => {
     };
     vcCache[did] = entry;
     res.send('Received VC for DID');
-        
+
     } catch (e) {
         err(e);
     }
@@ -596,7 +598,7 @@ app.get('/api/test/did-doc', async (req, res, err) => {
     const did = issuerState.did;
     const didDoc = await resolveDid(did);
     res.json(didDoc.didDocument);
-        
+
     } catch (e) {
         err(e);
     }
@@ -656,7 +658,7 @@ app.use(express.static('dist/static', {
 }));
 
 
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   console.error(err)
   res.status(500).json({
   "resourceType": "OperationOutcome",
