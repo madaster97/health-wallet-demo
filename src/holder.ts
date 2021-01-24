@@ -6,7 +6,7 @@ import { serverBase } from './config';
 import { encryptFor, generateDid, verifyJws } from './dids';
 import { keyGenerators } from './keys';
 import { EncryptionKey, SigningKey } from './KeyTypes';
-import { ClaimType} from './VerifierState';
+import { ClaimType } from './VerifierState';
 import { simulatedOccurrence } from './verifier';
 
 export async function holderWorld() {
@@ -52,8 +52,8 @@ export interface SiopInteraction {
         scope: string;
         nonce: string;
         registration: {
-            id_token_encrypted_response_alg?: string; 
-            id_token_encrypted_response_enc?: string; 
+            id_token_encrypted_response_alg?: string;
+            id_token_encrypted_response_enc?: string;
             id_token_signed_response_alg: string;
             client_uri: string;
         };
@@ -188,8 +188,9 @@ export async function holderReducer(state: HolderState, event: any): Promise<Hol
 
 export async function receiveSiopRequest(qrCodeUrl: string, state: HolderState) {
     const qrCodeParams = qs.parse(qrCodeUrl.split('?')[1]);
-    const requestUri = qrCodeParams.request_uri as string;
-    const siopRequestRaw = (await axios.get(requestUri)).data;
+    const siopRequestRaw = (!!qrCodeParams.request_uri)
+        ? (await axios.get(qrCodeParams.request_uri as string)).data :
+        JSON.parse(qrCodeParams.request as string);
     const siopRequestVerified = await verifyJws(siopRequestRaw, keyGenerators);
     if (siopRequestVerified.valid) {
         return ({
