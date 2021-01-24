@@ -138,11 +138,20 @@ const App: React.FC<AppProps> = (props) => {
     }
 
     const downloadDiscovery = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+<<<<<<< HEAD
         const discoveryDoc = holderState.discoveryDoc;
         var a = e.currentTarget;
         var file = new Blob([JSON.stringify(discoveryDoc)], { type: 'siop-discovery' });
         a.href = URL.createObjectURL(file);
         a.download = 'healthwallet.discovery';
+=======
+        // const discoveryDoc = await generateDiscovery(holderState);
+        const discoveryDoc = {'test':'value'}
+        var a = e.currentTarget;
+        var file = new Blob([JSON.stringify(discoveryDoc)], { type: 'siop-discovery' });
+        a.href = URL.createObjectURL(file);
+        a.download = 'healthwallet.discover';
+>>>>>>> Feat: file download
     }
 
     const [isOpen, setIsOpen] = useState(false);
