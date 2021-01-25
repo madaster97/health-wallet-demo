@@ -3,7 +3,7 @@ import base64url from 'base64url';
 import * as crypto from 'crypto';
 import qs from 'querystring';
 import { serverBase } from './config';
-import { encryptFor, generateDid, verifyJws } from './dids';
+import { encryptFor, generateDid, verifyJws, createDidConfig } from './dids';
 import { keyGenerators } from './keys';
 import { EncryptionKey, SigningKey } from './KeyTypes';
 import { ClaimType } from './VerifierState';
@@ -79,7 +79,8 @@ export interface HolderState {
         type: ClaimType[],
         vcSigned: string,
         vcPayload: any;
-    }[]
+    }[],
+    discoveryDoc: object
 }
 
 export const currentInteraction = (state: HolderState): SiopInteraction =>
@@ -96,12 +97,17 @@ export const initializeHolder = async (): Promise<HolderState> => {
         recoveryPublicJwk: rk.publicJwk,
         updatePublicJwk: uk.publicJwk
     });
+    const discoveryDoc = await createDidConfig(sk, did.didLong, {
+        id: did.didLong,
+        protocol: new URL('openid:').protocol,
+    }, ['ProtocolLinkageCredential']);
     return {
         ek,
         sk,
         did: did.did,
         interactions: [],
-        vcStore: []
+        vcStore: [],
+        discoveryDoc
     };
 };
 export async function holderReducer(state: HolderState, event: any): Promise<HolderState> {
@@ -201,6 +207,10 @@ export async function receiveSiopRequest(qrCodeUrl: string, state: HolderState) 
         console.log("IVALID SIOP REQUEST", siopRequestRaw, siopRequestVerified)
     }
 }
+
+// export await function generateDiscovery(state: HolderState) {
+
+// }
 
 const claimsForType = (k: ClaimType, vcStore: HolderState["vcStore"]) => {
     return vcStore.filter(({ type }) => type.find(t => t === k)).map(({ vcSigned }) => vcSigned)

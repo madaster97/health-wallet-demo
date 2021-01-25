@@ -7,7 +7,7 @@ import { Card, CardSubtitle, CardText, CardTitle, Collapse, Nav, NavbarBrand, Na
 import * as config from './config';
 import CovidCard from './CovidCard';
 import makeFhirConnector from './FhirConnector';
-import { holderReducer, HolderState, initializeHolder, receiveSiopRequest } from './holder';
+import { holderReducer, HolderState, initializeHolder, receiveSiopRequest, generateDiscovery } from './holder';
 import { issuerWorld } from './issuer';
 import { ConfigEditModal } from './Modals';
 import { parseSiopApprovalProps, SiopApprovalModal, SiopRequestReceiver } from './SiopApproval';
@@ -137,13 +137,12 @@ const App: React.FC<AppProps> = (props) => {
         dispatchToHolder(receiveSiopRequest(connected.siopUrl, holderState))
     }
 
-    const downloadDiscovery = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-        // const discoveryDoc = await generateDiscovery(holderState);
-        const discoveryDoc = {'test':'value'}
+    const downloadDiscovery = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        const discoveryDoc = holderState.discoveryDoc;
         var a = e.currentTarget;
         var file = new Blob([JSON.stringify(discoveryDoc)], { type: 'siop-discovery' });
         a.href = URL.createObjectURL(file);
-        a.download = 'healthwallet.discover';
+        a.download = 'healthwallet';
     }
 
     const [isOpen, setIsOpen] = useState(false);
@@ -165,7 +164,7 @@ const App: React.FC<AppProps> = (props) => {
                         }}>Scan QR to Share</NavLink>
                         <NavLink href="#" onClick={connectTo('verifier')}> Open Employer Portal</NavLink>
                         <NavLink href="#config" onClick={e => dispatch({ type: 'toggle-editing-config' })}> Edit Config</NavLink>
-                        <NavLink onClick={downloadDiscovery}> Download Pass App DocuLink</NavLink>
+                        <NavLink href="#" onClick={downloadDiscovery}> Download Pass App DocuLink</NavLink>
                         <NavLink target="_blank" href="https://github.com/microsoft-healthcare-madison/health-wallet-demo">Source on GitHub</NavLink>
                     </Nav>
                 </Collapse></RS.Container>
