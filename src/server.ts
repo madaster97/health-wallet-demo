@@ -18,7 +18,7 @@ import examplePt from './fixtures/patient.json'
 import exampleCapabilityStatement from './fixtures/capability-statement.json'
 
 import { VerifierState } from './VerifierState';
-import { generateDid, verifyJws, encryptFor } from './dids';
+import { generateDid, verifyJws, encryptFor, createDidConfig } from './dids';
 import { issuerReducer, prepareSiopRequest, issueVcsToHolder, parseSiopResponse, CredentialGenerationDetals } from './VerifierLogic';
 
 import * as s1 from '@decentralized-identity/sidetree/dist/lib/core/versions/latest/protocol-parameters.json';
@@ -99,36 +99,11 @@ app.get('/'  + didConfig, async (req, res, err) => {
     try {
         const issued = Math.round(new Date().getTime() / 1000 - 10 * 60); // ten minutes ago
         const expires = Math.round(new Date().getTime() / 1000 + 10 * 60); // ten minutes from now
-        const response = {
-            "@context": "https://identity.foundation/.well-known/contexts/did-configuration-v0.0.jsonld",
-            "entries": [
-            await issuerState.sk.sign({
-                kid: issuerState.did + '#signing-key-1',
-                }, {
-                    sub: issuerState.did,
-                    iss: issuerState.did,
-                    nbf: issued,
-                    exp: expires,
-                    vc: {
-                        "@context": [
-                            "https://www.w3.org/2018/credentials/v1",
-                            "https://identity.foundation/.well-known/contexts/did-configuration-v0.0.jsonld"],
-                        issuer: issuerState.did,
-                        issuanceDate: new Date(issued * 1000).toISOString(),
-                        expirationDate: new Date(expires * 1000).toISOString(),
-                        type: [
-                            "VerifiableCredential",
-                            "DomainLinkageCredential"
-                        ],
-                        credentialSubject: {
-                            id: issuerState.did,
-                            origin: new URL(issuerState.config.serverBase).origin,
-                        }
-                    }
-                })
-
-        ]};
-
+        const response = await createDidConfig(issuerState.sk,issuerState.did,{
+            id: issuerState.did,
+            origin: new URL(issuerState.config.serverBase).origin,
+        },['DomainLinkageCredential']);
+        
         res.json(response)
 
     }
