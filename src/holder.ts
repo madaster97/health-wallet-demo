@@ -87,6 +87,7 @@ export const currentInteraction = (state: HolderState): SiopInteraction =>
     state.interactions.filter(i => !i.siopResponse)[0]
 
 export const initializeHolder = async (): Promise<HolderState> => {
+<<<<<<< HEAD
     const stateKey = 'holder_state';
     let existingState = window.localStorage[stateKey];
 
@@ -118,6 +119,30 @@ export const initializeHolder = async (): Promise<HolderState> => {
     }
 
     return JSON.parse(window.localStorage[stateKey]);
+=======
+    const ek = await keyGenerators.generateEncryptionKey();
+    const sk = await keyGenerators.generateSigningKey();
+    const uk = await keyGenerators.generateSigningKey();
+    const rk = await keyGenerators.generateSigningKey();
+    const did = await generateDid({
+        encryptionPublicJwk: ek.publicJwk,
+        signingPublicJwk: sk.publicJwk,
+        recoveryPublicJwk: rk.publicJwk,
+        updatePublicJwk: uk.publicJwk
+    });
+    const discoveryDoc = await createDidConfig(sk, did.didLong, {
+        id: did.didLong,
+        protocol: new URL('openid:').protocol,
+    }, ['ProtocolLinkageCredential']);
+    return {
+        ek,
+        sk,
+        did: did.did,
+        interactions: [],
+        vcStore: [],
+        discoveryDoc
+    };
+>>>>>>> did-config refactor + holder dwnld func
 };
 export async function holderReducer(state: HolderState, event: any): Promise<HolderState> {
     if (event.type === 'begin-interaction') {
