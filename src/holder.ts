@@ -88,7 +88,7 @@ export const currentInteraction = (state: HolderState): SiopInteraction =>
 
 export const initializeHolder = async (): Promise<HolderState> => {
     const stateKey = 'holder_state';
-    let existingState = JSON.parse(window.localStorage[stateKey]);
+    let existingState = window.localStorage[stateKey];
 
     // Trial as a persistent holder
     if (!existingState) {
@@ -107,18 +107,17 @@ export const initializeHolder = async (): Promise<HolderState> => {
             protocol: new URL('openid:').protocol,
         }, ['ProtocolLinkageCredential']);
 
-        existingState = {
+        window.localStorage[stateKey] = JSON.stringify({
             ek,
             sk,
             did: did.did,
             interactions: [],
             vcStore: [],
             discoveryDoc
-        };
-        window.localStorage[stateKey] = JSON.stringify(existingState);
+        });
     }
 
-    return existingState;
+    return JSON.parse(window.localStorage[stateKey]);
 };
 export async function holderReducer(state: HolderState, event: any): Promise<HolderState> {
     if (event.type === 'begin-interaction') {
