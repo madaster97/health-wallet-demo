@@ -160,4 +160,38 @@ export async function createDidConfig( sk, did, credentialSubject, additionalTyp
     return document;
 }
 
+<<<<<<< HEAD
+=======
+export async function createDidConfig( sk, did, credentialSubject, additionalTypes ) {
+    const issued = Math.round(new Date().getTime() / 1000 - 10 * 60); // ten minutes ago
+    const expires = Math.round(new Date().getTime() / 1000 + 10 * 60); // ten minutes from now
+    const document = {
+        "@context": "https://identity.foundation/.well-known/contexts/did-configuration-v0.0.jsonld",
+        "entries": [
+        await sk.sign({
+            kid: did + '#signing-key-1',
+            }, {
+                sub: did,
+                iss: did,
+                nbf: issued,
+                exp: expires,
+                vc: {
+                    "@context": [
+                        "https://www.w3.org/2018/credentials/v1",
+                        "https://identity.foundation/.well-known/contexts/did-configuration-v0.0.jsonld"],
+                    issuer: did,
+                    issuanceDate: new Date(issued * 1000).toISOString(),
+                    expirationDate: new Date(expires * 1000).toISOString(),
+                    type: [
+                        "VerifiableCredential",
+                        ...additionalTypes
+                    ],
+                    credentialSubject
+                }
+            })
+    ]};
+    return document;
+}
+
+>>>>>>> 9f1e4950c49c0ccacb5fd70900b4542a5b105e89
 const jwtHeader = (jwt) => JSON.parse(base64url.decode(jwt.split('.')[0]));
