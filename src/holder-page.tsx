@@ -137,12 +137,12 @@ const App: React.FC<AppProps> = (props) => {
         dispatchToHolder(receiveSiopRequest(connected.siopUrl, holderState))
     }
 
-    const downloadDiscovery = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+    const downloadDiscovery = async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         const discoveryDoc = holderState.discoveryDoc;
         var a = e.currentTarget;
         var file = new Blob([JSON.stringify(discoveryDoc)], { type: 'siop-discovery' });
         a.href = URL.createObjectURL(file);
-        a.download = 'healthwallet';
+        a.download = 'healthwallet.discovery';
     }
 
     const [isOpen, setIsOpen] = useState(false);
@@ -164,7 +164,7 @@ const App: React.FC<AppProps> = (props) => {
                         }}>Scan QR to Share</NavLink>
                         <NavLink href="#" onClick={connectTo('verifier')}> Open Employer Portal</NavLink>
                         <NavLink href="#config" onClick={e => dispatch({ type: 'toggle-editing-config' })}> Edit Config</NavLink>
-                        <NavLink href="#" onClick={downloadDiscovery}> Download Pass App DocuLink</NavLink>
+                        <NavLink onClick={downloadDiscovery}> Download Pass App DocuLink</NavLink>
                         <NavLink target="_blank" href="https://github.com/microsoft-healthcare-madison/health-wallet-demo">Source on GitHub</NavLink>
                     </Nav>
                 </Collapse></RS.Container>

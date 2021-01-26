@@ -87,28 +87,38 @@ export const currentInteraction = (state: HolderState): SiopInteraction =>
     state.interactions.filter(i => !i.siopResponse)[0]
 
 export const initializeHolder = async (): Promise<HolderState> => {
-    const ek = await keyGenerators.generateEncryptionKey();
-    const sk = await keyGenerators.generateSigningKey();
-    const uk = await keyGenerators.generateSigningKey();
-    const rk = await keyGenerators.generateSigningKey();
-    const did = await generateDid({
-        encryptionPublicJwk: ek.publicJwk,
-        signingPublicJwk: sk.publicJwk,
-        recoveryPublicJwk: rk.publicJwk,
-        updatePublicJwk: uk.publicJwk
-    });
-    const discoveryDoc = await createDidConfig(sk, did.didLong, {
-        id: did.didLong,
-        protocol: new URL('openid:').protocol,
-    }, ['ProtocolLinkageCredential']);
-    return {
-        ek,
-        sk,
-        did: did.did,
-        interactions: [],
-        vcStore: [],
-        discoveryDoc
-    };
+    const stateKey = 'holder_state';
+    let existingState = JSON.parse(window.localStorage[stateKey]);
+
+    // Trial as a persistent holder
+    if (!existingState) {
+        const ek = await keyGenerators.generateEncryptionKey();
+        const sk = await keyGenerators.generateSigningKey();
+        const uk = await keyGenerators.generateSigningKey();
+        const rk = await keyGenerators.generateSigningKey();
+        const did = await generateDid({
+            encryptionPublicJwk: ek.publicJwk,
+            signingPublicJwk: sk.publicJwk,
+            recoveryPublicJwk: rk.publicJwk,
+            updatePublicJwk: uk.publicJwk
+        });
+        const discoveryDoc = await createDidConfig(sk, did.didLong, {
+            id: did.didLong,
+            protocol: new URL('openid:').protocol,
+        }, ['ProtocolLinkageCredential']);
+
+        existingState = {
+            ek,
+            sk,
+            did: did.did,
+            interactions: [],
+            vcStore: [],
+            discoveryDoc
+        };
+        window.localStorage[stateKey] = JSON.stringify(existingState);
+    }
+
+    return existingState;
 };
 export async function holderReducer(state: HolderState, event: any): Promise<HolderState> {
     if (event.type === 'begin-interaction') {
