@@ -137,6 +137,14 @@ const App: React.FC<AppProps> = (props) => {
         dispatchToHolder(receiveSiopRequest(connected.siopUrl, holderState))
     }
 
+    const downloadLink = ({type}) => async (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        const testDoc = {'test':'value'}
+        var a = e.currentTarget;
+        var file = new Blob([JSON.stringify(testDoc)], { type });
+        a.href = URL.createObjectURL(file);
+        a.download = 'test.json';
+    }
+
     const [isOpen, setIsOpen] = useState(false);
     const toggle = () => setIsOpen(!isOpen);
 
@@ -212,14 +220,15 @@ const App: React.FC<AppProps> = (props) => {
                     </Card>
                 </RS.Col>
             </RS.Row>
-            <RS.Row style={{
-                justifyContent: "flex-end"
-            }}>
-                {holderState.vcStore.length ? <img
-                    onClick={() => { dispatch({ type: 'open-scanner', 'label': 'Verifier' }) }}
-                    style={{ cursor: "pointer" }} src="img/qr-scan-icon.svg"></img> : ""
-                }
-            </RS.Row>
+            {holderState.vcStore.length > 0 && 
+                <RS.Row style={{
+                    justifyContent: "flex-end"
+                }}>
+                    <img onClick={() => { dispatch({ type: 'open-scanner', 'label': 'Verifier' }) }}
+                        style={{ cursor: "pointer" }} src="img/qr-scan-icon.svg"></img>
+                    <NavLink onClick={downloadLink({type: 'unsigned-vcs'})}> Download VCs</NavLink>
+                </RS.Row>
+            }
         </RS.Container>
 
         <div>
