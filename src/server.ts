@@ -50,10 +50,14 @@ async function resolveDid(did: string) {
 
     const newDidState = await processor.apply(operationWithMockedAnchorTime, undefined);
 <<<<<<< HEAD
+<<<<<<< HEAD
     const document = DocumentComposer.transformToExternalDocument(newDidState, parsedDid, false);
 =======
     const document = DocumentComposer.transformToExternalDocument(newDidState, did, false);
 >>>>>>> sidetree updates
+=======
+    const document = DocumentComposer.transformToExternalDocument(newDidState, did, false);
+>>>>>>> d9524adc8081764d2ad9df92aa6540e2a8b81112
     return document;
 }
 
@@ -283,6 +287,7 @@ app.get('/api/fhir/DiagnosticReport', async (req, res, err) => {
         }]
     })
 
+<<<<<<< HEAD
     } catch (e) {
         err(e);
     }
@@ -320,6 +325,8 @@ app.get('/api/fhir/Patient/:patientID', async (req, res, err) => {
         id: req.params.patientID
     })
     
+=======
+>>>>>>> d9524adc8081764d2ad9df92aa6540e2a8b81112
     } catch (e) {
         err(e);
     }
