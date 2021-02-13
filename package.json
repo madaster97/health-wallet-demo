@@ -20,7 +20,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@decentralized-identity/sidetree": "^1.0.0",
     "@types/node-jose": "^1.1.5",
     "@types/react": "^16.9.55",
     "@types/react-dom": "^16.9.9",
@@ -44,6 +43,7 @@
     "jsonschema": "^1.4.0",
     "multihashes": "^0.4.21",
     "node-jose": "^2.0.0",
+    "pako": "^2.0.3",
     "qr-scanner": "^1.2.0",
     "qrcode": "^1.4.4",
     "querystring": "^0.2.0",

@@ -1,22 +1,20 @@
-import { initializeVerifier, simulatedOccurrence, simulate, displayRequest, receiveSiopResponse } from './verifier';
 import axios from 'axios';
 import { serverBase } from './config';
+import { displayRequest, initializeVerifier, receiveSiopResponse, simulate } from './verifier';
+import { issueHealthCardsToHolder, issuerReducer, prepareSiopRequest } from './VerifierLogic';
+import { SiopResponseMode, VerifierState } from './VerifierState';
 
-import { encryptFor, generateDid, verifyJws } from './dids';
-import { VerifierState, SiopResponseMode } from './VerifierState';
-import { keyGenerators } from './keys';
-import { prepareSiopRequest, verifierReducer, issuerReducer, issueVcsToHolder } from './VerifierLogic';
 
 export async function issuerWorld(requestMode: SiopResponseMode  = 'form_post', reset = false) {
     let state = await initializeVerifier({
         role: 'issuer',
+        issuerUrl: 'TODO: fixme',
         claimsRequired: [],
         responseMode: requestMode,
         reset,
         displayQr: false,
         postRequest: async (url, r) => (await axios.post(url, r)).data,
         serverBase,
-        keyGenerators
     });
     const dispatch = async (ePromise) => {
         const e = await ePromise;
@@ -33,7 +31,7 @@ export async function issuerWorld(requestMode: SiopResponseMode  = 'form_post', 
 
     if (!state.siopResponse) {
         await dispatch(receiveSiopResponse(state));
-        await dispatch(issueVcsToHolder(state));
+        await dispatch(issueHealthCardsToHolder(state));
     }
 
     if (state.fragment?.id_token) {

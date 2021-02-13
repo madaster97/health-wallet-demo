@@ -2,6 +2,9 @@ import React, { useCallback, useState } from 'react';
 import { Button, InputGroupAddon, ModalHeader, Modal, ModalBody, ModalFooter, InputGroup, InputGroupText, Input } from 'reactstrap';
 import { UiState } from './holder-page';
 import { SiopApprovalProps } from './SiopApproval';
+import { HealthCard } from './siop';
+import { HolderState } from './holder';
+import { QrDisplay } from './venue-page';
 
 const ConfigEditOption: React.FC<{
     title: string;
@@ -70,3 +73,34 @@ export const ConfigEditModal: React.FC<{
         </Modal>
     </>;
 };
+
+
+interface QrPresentationState {
+    healthCard: HolderState["vcStore"][number],
+    dispatch: any
+}
+export const QRPresentationModal: React.FC<QrPresentationState> = ({ healthCard, dispatch }) => {
+    const done = () => {
+        dispatch({ type: 'end-qr-presentation' });
+    }
+
+    const SMALLEST_B64_CHAR_CODE = 45; // "-".charCodeAt(0) === 45
+    const encodeToNumeric = (jws: string): number[] => jws
+        .split("")
+        .map(c => c.charCodeAt(0) - SMALLEST_B64_CHAR_CODE)
+        .flatMap(c => [
+            Math.floor(c / 10),
+            c % 10
+        ]);
+
+    return <>
+        <Modal isOpen={true}>
+            <ModalHeader>Present Health Card</ModalHeader>
+            <ModalBody><QrDisplay numeric={encodeToNumeric(healthCard.vcSigned)} noLink={true}></QrDisplay></ModalBody>
+            <ModalFooter className="json"><pre>{JSON.stringify(healthCard.vcPayload, null, 2)}</pre></ModalFooter>
+            <ModalFooter>
+                <Button color="success" onClick={e => done()}>Done</Button>
+            </ModalFooter>
+        </Modal>
+    </>
+}

@@ -1,34 +1,40 @@
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState, useEffect, useCallback } from 'react';
+import QRCode from 'qrcode';
+import React, { useCallback, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import * as RS from 'reactstrap';
 import { NavbarBrand } from 'reactstrap';
 import { serverBase } from './config';
-import { keyGenerators } from './keys';
 import './style.css';
 import { initializeVerifier, receiveSiopResponse } from './verifier';
+import { prepareSiopRequest, verifierReducer } from './VerifierLogic';
 import { VerifierState } from './VerifierState';
-import { verifierReducer, prepareSiopRequest } from './VerifierLogic';
-import QRCode from 'qrcode';
-import { url } from 'inspector';
 
-const QrDisplay: React.FC<{ url: string }> = (props) => {
+export const QrDisplay: React.FC<{ numeric?: number[], url?: string, noLink?: boolean }> = (props) => {
     useEffect(() => {
-        console.log("QR canvas", props.url)
-    }, [props.url])
+        console.log("QR canvas", props.url, props.numeric)
+    }, [props.url, props.numeric])
 
     const canvasCallback = useCallback(canvasElement => {
         if (!canvasElement) return;
-        QRCode.toCanvas(canvasElement, props.url, { scale: 20 }, (error) => {
-            canvasElement.style.width = '';
-            canvasElement.style.height = '';
-            if (error) console.error(error);
-        });
+        if (props.url) {
+            QRCode.toCanvas(canvasElement, props.url, { scale: 20 }, (error) => {
+                canvasElement.style.width = '';
+                canvasElement.style.height = '';
+                if (error) console.error(error);
+            });
+        } else if (props.numeric) {
+            QRCode.toCanvas(canvasElement, [{ data: props.numeric!.join(""), mode: 'numeric' }], { errorCorrectionLevel: 'L', scale: 20 }, (error) => {
+                canvasElement.style.width = '';
+                canvasElement.style.height = '';
+                if (error) console.error(error);
+            });
+        }
     }, [props.url])
 
     return <div>
-        <a href={props.url}>
+        <a href={props.noLink ? "#" : props.url} >
             <canvas ref={canvasCallback} style={{ maxHeight: "50vmin", maxWidth: "50vmin", width: undefined, height: undefined }} />
         </a>
     </div>
@@ -55,10 +61,6 @@ const App: React.FC<{
         console.log("Display barcode for", verifierState.siopRequest.siopRequestQrCodeUrl)
     }, [verifierState?.siopRequest?.siopRequestQrCodeUrl])
 
-    useEffect(() => {
-        console.log("Have response", verifierState.siopResponse)
-    }, [verifierState?.siopResponse])
-
     const dispatchToVerifier = async (e) => {
         const nextState = await verifierReducer(verifierState, await e)
         setVerifierState(nextState)
@@ -68,11 +70,10 @@ const App: React.FC<{
     const displayResponse = verifierState?.siopResponse
     const displayRequest = (verifierState?.siopRequest?.siopRequestQrCodeUrl && !displayResponse)
 
-    let did, name, conclusion;
+    let name, conclusion;
     if (displayResponse) {
-        did = displayResponse.idTokenPayload.did.replace(/\?.*/, "");
         const fhirName = displayResponse?.idTokenVcs[0].vc.credentialSubject.fhirBundle.entry[0].resource.name[0]
-        name = fhirName?.given[0]  + " " + fhirName?.family
+        name = fhirName?.given[0] + " " + fhirName?.family
         conclusion = displayResponse?.idTokenVcs.map(jwtPayload => jwtPayload.vc.credentialSubject.fhirBundle.entry[1].resource.conclusion)
     }
 
@@ -129,12 +130,12 @@ const App: React.FC<{
 
 export default async function main() {
     const state = await initializeVerifier({
-        role: 'venue',
+        role: 'verifier',
+        issuerUrl: serverBase.slice(0, -3) + 'verifier',
         claimsRequired: ['https://smarthealth.cards#covid19'],
         responseMode: 'form_post',
         postRequest: async (url, r) => (await axios.post(url, r)).data,
         serverBase,
-        keyGenerators,
     });
 
     ReactDOM.render(

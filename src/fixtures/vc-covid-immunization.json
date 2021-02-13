@@ -1,9 +1,6 @@
 {
-  "iss": "<<did:ion identifier for issuer>>",
-  "nbf": 1611160486,
+  "iss": "<<URL for Issuer>>",
   "iat": 1611160486,
-  "sub": "<<did:ion identifier for subject>>",
-  "nonce": "FD790F250D50-BCF95D9ECB7E",
   "vc": {
     "@context": [
       "https://www.w3.org/2018/credentials/v1"
@@ -21,7 +18,7 @@
         "type": "collection",
         "entry": [
           {
-            "fullUrl": "urn:uuid:5372596F-4D2F-48D1-A2BC-19A3D8F583A8",
+            "fullUrl": "resource:0",
             "resource": {
               "resourceType": "Patient",
               "extension": [
@@ -32,69 +29,75 @@
               ],
               "name": [
                 {
-                  "family": "Everywoman",
+                  "family": "Anyperson",
                   "given": [
-                    "Evelyn"
+                    "Johnathan",
+                    "Biggleston III"
                   ]
                 }
               ],
-              "telecom": [
-                {
-                  "system": "phone",
-                  "value": "617-000-0000",
-                  "use": "mobile"
-                }
-              ]
+              "gender": "male",
+              "birthDate": "1951-01-20",
+              "address": [ {
+                  "postalCode": "12345",
+                  "country": "US"
+                } ]
             }
-          }, {
-            "fullUrl": "urn:uuid:c2e26781-f66b-4dea-90cc-9ec6e392b1e3",
+          },
+          {
+            "fullUrl": "resource:1",
             "resource": {
               "resourceType": "Immunization",
               "status": "completed",
-              "occurrenceDateTime": "2020-12-18",
               "vaccineCode": {
                 "coding": [
                   {
                     "system": "http://hl7.org/fhir/sid/cvx",
-                    "code": "207",
-                    "display": "COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose"
+                    "code": "207"
                   }
                 ]
               },
-              "location": {
-                "display": "ACME Pharmacy, 101 Main Street, Springfield ST"
-              },
-              "lotNumber": "ASX-3528",
               "patient": {
-                "reference": "urn:uuid:5372596F-4D2F-48D1-A2BC-19A3D8F583A8"
+                "reference": "resource:0"
               },
-              "reported": false,
-              "wasNotGiven": false
+              "occurrenceDateTime": "2021-01-01",
+              "primarySource": true,
+              "location": {
+                "reference": "resource:3"
+              },
+              "lotNumber": "Lot #0000001"
             }
-          }, {
-            "fullUrl": "urn:uuid:7284310c-1853-4de0-bb3d-17a69ad4ca18",
+          },
+          {
+            "fullUrl": "resource:2",
             "resource": {
               "resourceType": "Immunization",
               "status": "completed",
-              "occurrenceDateTime": "2021-01-14",
               "vaccineCode": {
                 "coding": [
                   {
                     "system": "http://hl7.org/fhir/sid/cvx",
-                    "code": "207",
-                    "display": "COVID-19, mRNA, LNP-S, PF, 100 mcg/ 0.5 mL dose"
+                    "code": "207"
                   }
                 ]
               },
-              "location": {
-                "display": "ACME Pharmacy, 101 Main Street, Springfield ST"
-              },
-              "lotNumber": "ASX-8122",
               "patient": {
-                "reference": "urn:uuid:5372596F-4D2F-48D1-A2BC-19A3D8F583A8"
+                "reference": "resource:0"
               },
-              "reported": false,
-              "wasNotGiven": false
+              "occurrenceDateTime": "2021-01-29",
+              "primarySource": true,
+              "location": {
+                "reference": "resource:3"
+              },
+              "lotNumber": "Lot #0000007"
+            }
+          },
+          {
+            "fullUrl": "resource:3",
+            "resource": {
+              "resourceType": "Location",
+              "name": "ABC Pharmacy",
+              "address": {"line": ["29182 South Main St NE"], "postalCode": "53726", "city": "Madision", "state": "WI", "country": "US"}
             }
           }
         ]

@@ -1,3 +1,13 @@
 .config-prepend {
     min-width: 10em;
 }
+
+.json {
+    font-family: monospace;
+    font-size: x-smallj;
+}
+
+.modal-body canvas {
+    max-width: 100% !important;
+    max-height: 100% !important;
+}
