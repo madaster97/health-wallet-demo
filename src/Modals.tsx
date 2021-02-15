@@ -5,6 +5,7 @@ import { SiopApprovalProps } from './SiopApproval';
 import { HealthCard } from './siop';
 import { HolderState } from './holder';
 import { QrDisplay } from './venue-page';
+import { encodeToNumeric } from './numericCoding';
 
 const ConfigEditOption: React.FC<{
     title: string;
@@ -83,15 +84,6 @@ export const QRPresentationModal: React.FC<QrPresentationState> = ({ healthCard,
     const done = () => {
         dispatch({ type: 'end-qr-presentation' });
     }
-
-    const SMALLEST_B64_CHAR_CODE = 45; // "-".charCodeAt(0) === 45
-    const encodeToNumeric = (jws: string): number[] => jws
-        .split("")
-        .map(c => c.charCodeAt(0) - SMALLEST_B64_CHAR_CODE)
-        .flatMap(c => [
-            Math.floor(c / 10),
-            c % 10
-        ]);
 
     return <>
         <Modal isOpen={true}>
